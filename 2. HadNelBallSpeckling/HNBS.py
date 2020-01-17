@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from big_ol_pile_of_manim_imports import *
+from manimlib.imports import *
 from Auxiliary import *
 import numpy as np
 import scipy as sp
