@@ -182,93 +182,58 @@ class ExclusionZone(VMobject):  # Work in progress
 
     def __init__(self, arcPolygon, **kwargs):
         VMobject.__init__(self, **kwargs)
-        arcPolygon = arcPolygon.copy().force_orientation("CW")
+        arcPolygon = arcPolygon.copy()
+        arcPolygon.force_orientation("CW")
         arcs=arcPolygon.get_arcs()
 
 
-        EXarcsInner = []
         arcPoints=[]
-        # First get the arc_center points from the given points
-        for i in len(arcs):
-            # print(points[-i])
+        # First get the corner points of the initial shape
+        for i in range(len(arcs)):
             i = -(i + 1)
             arcPoints.append(arcs[i].get_end())
+        arcPoints.append(arcs[-1].get_end())
         arcedBoundary=[]
-        for i in len(arcPoints):
+        # Connect these points with radius 1 arcs
+        for i in range(len(arcPoints)-1):
             a = arcPoints[i]
             b = arcPoints[i+1]
             halfdist = np.linalg.norm(a - b) / 2
             arcHeight = 1 - math.sqrt(1 ** 2 - halfdist ** 2)
             ang = math.acos((1 - arcHeight) / 1)
-            arc = ArcBetweenPoints(a, b, stroke_width=0, angle=ang * 2)
+            arc = ArcBetweenPoints(a, b, stroke_width=0, angle=-ang * 2)
             arcedBoundary.append(arc)
-        EXarcsInner.append(arc)
+            print("Points")
+            print(a)
+            print(b)
+            print("Ac")
+            print(arc.get_arc_center())
+        arcedBoundaryCenters=[]
+        # Get the centers of these arcs
+        for arc in arcedBoundary:
+            arcedBoundaryCenters.append(arc.get_arc_center())
+        arcedBoundaryCenters.append(arcedBoundary[0].get_arc_center())
+        # Last, connect these centers with new arcs, that'll be the inner boundary
+        # Do note, from this point forward this operation is involutary, the arcpolygons are dual
+        EXarcsInner=[]
+        for i in range(len(arcedBoundaryCenters)-1):
+            a = arcedBoundaryCenters[i]
+            b = arcedBoundaryCenters[i+1]
+            halfdist = np.linalg.norm(a - b) / 2
+            arcHeight = 1 - math.sqrt(1 ** 2 - halfdist ** 2)
+            ang = math.acos((1 - arcHeight) / 1)
+            arc = ArcBetweenPoints(a, b, stroke_width=0, angle=-ang * 2)
+            EXarcsInner.append(arc)
+            
 
-    def deprecated(self):
-        points = shape.get_vertices()
-        pLen = len(points)
-        pRange = range(pLen)
-        for i in pRange:
-            print(i)
-        # We need to get the orientation first, since we're afterwards adding the first element...
-        # At the end again for ease of processing
-        #orientation = shoelace(points)
-        #points = np.vstack((points, points[0]))
-        # The outer boundary is made via the input points and the lines made by connecting them.
-        # This means one Arc object is created for every input point, its angles determined...
-        # ...via the angles towards the previous and next point.
-        EXarcsOuter = []
-        for i in pRange:
-            # print(points[i])
-            # The angle output we need to determine from what we have is as follows:
-            # Point 1[1,1,0]
-            # pi/2 | -pi/2
-            # Point 2[1,-1,0]
-            # 0 | -pi/2
-            # Point 3[-1,-1,0]
-            # -pi/2 | -pi/2
-            # Point 4[-1,1,0]
-            # -pi | -pi/2
-            if orientation == "CW":
-                if i == 0:
-                    # print("Starting angle0")
-                    # points[-2] because the first point as appended to the end of the points array
-                    a1 = Line(points[-2], points[i]).get_angle() + math.pi / 2
-                    # print(round(math.degrees(a1)))
-                    a2 = Line(points[i], points[i + 1]).get_angle() + math.pi / 2 - a1
-                    # print("Line direction0")
-                    # print(round(math.degrees(Line(points[i],points[i+1]).get_angle()+math.pi/2)))
-                else:
-                    # print("Starting angle")
-                    a1 = a1 + a2
-                    # print(round(math.degrees(a1)))
-                    a2 = Line(points[i], points[i + 1]).get_angle() + math.pi / 2
-                    # print("Line direction")
-                    # print(round(math.degrees(a2)))
-                    a2 = Line(points[i], points[i + 1]).get_angle() + math.pi / 2 - a1
-                    # print(round(math.degrees(a2)))
-                    a2 = a2 % (-math.pi * 2)  # This is patchwork solution for now, probably not final
-            else:  # CCW - the angle offset needs to be reversed to still point outside
-                if i == 0:  # points[-2] because the first point as appended to the end of the points array
-                    a1 = Line(points[-2], points[i]).get_angle() - math.pi / 2
-                    a2 = Line(points[i], points[i + 1]).get_angle() - math.pi / 2 - a1
-                else:
-                    a1 = a1 + a2
-                    a2 = Line(points[i], points[i + 1]).get_angle() - math.pi / 2
-                    a2 = Line(points[i], points[i + 1]).get_angle() - math.pi / 2 - a1
-                    a2 = a2 % (math.pi * 2)  # This is patchwork solution for now, probably not final
-            arc = Arc(a1, a2, radius=1).move_arc_center_to(points[i])
-            # print(arc)
-            EXarcsOuter.append(arc)
-
-        ExZone = ArcPolygon(*EXarcsOuter)
+        #ExZone = ArcPolygon(*EXarcsOuter)
         InZone = ArcPolygon(*EXarcsInner)
         # self.ExZone=ExZone
         # ,**APkwargs)
         # Last, the simple center tile
         # Tile=ArcPolygon(*arcs,**APkwargs)
-        self.append_points(ExZone.get_points())
-        # self.append_points(InZone.get_points())
+        #self.append_points(ExZone.get_points())
+        self.append_points(InZone.get_points())
 
     def get_vertices(self):
         return self.get_start_anchors()

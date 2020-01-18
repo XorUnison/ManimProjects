@@ -71,14 +71,28 @@ class TestZone(ZoomedScene):
         arc7=ArcBetweenPoints(np.array([1,-1,0]),np.array([1,1,0]),stroke_width=0,angle=0)
         AP=ArcPolygon(arc0,arc1,arc2,arc3,arc5,arc6,arc7,arc4,
                       fill_opacity=0.5,color=RED,stroke_width=3.0,stroke_color=GREEN)
-        #AP=ArcPolygon(arc0,arc1,arc2,arc3,
-        #              fill_opacity=0.5,color=RED,stroke_width=3.0,stroke_color=GREEN)
+        arct0=ArcBetweenPoints(np.array([0.5,0.5,0]),np.array([0,0.5,0]),stroke_width=0,angle=0)
+        arct1=ArcBetweenPoints(np.array([0,0.5,0]),np.array([0,0,0]),stroke_width=0,angle=0)
+        arct2=ArcBetweenPoints(np.array([0,0,0]),np.array([0.5,0,0]),stroke_width=0,angle=0)
+        arct3=ArcBetweenPoints(np.array([0.5,0,0]),np.array([0.5,0.5,0]),stroke_width=0,angle=0)
+        AP2=ArcPolygon(arct0,arct1,arct2,arct3,
+                      fill_opacity=0.5,color=RED,stroke_width=3.0,stroke_color=GREEN)
+
+        arctr0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),stroke_width=0,angle=0)
+        arctr1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),stroke_width=0,angle=0)
+        arctr2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),stroke_width=0,angle=0)
+        AP3=ArcPolygon(arctr0,arctr1,arctr2,
+                      fill_opacity=0.5,color=RED,stroke_width=3.0,stroke_color=GREEN)
+
+
+
+        
         #self.play(ShowCreation(AP),run_time=13,rate_func=linear)
         #self.wait(2)
         #p=Polygon([1,1,0],[1,-1,0],[-1,-1,0],[-1,1,0]).scale(1)
         #p2=p.copy().flip(RIGHT)
         #p2=Polygon([1,1,0],[-1,1,0],[-1,-1,0],[1,-1,0]).scale(1)
-        EX=ExclusionZone(AP,fill_opacity=0.5,color=RED,stroke_width=3,stroke_color=GREEN)
+        EX=ExclusionZone(AP2,fill_opacity=0.5,color=RED,stroke_width=3,stroke_color=GREEN)
         #EX2=ExclusionZone(p2,fill_opacity=1,color=RED,stroke_width=3,stroke_color=GREEN)
 
         #self.play(ShowCreation(p),run_time=2,rate_func=linear)
@@ -99,11 +113,12 @@ class TestZone(ZoomedScene):
         ta=ArcBetweenPoints(a,b, stroke_width=2, angle=ang*2)
         #ta=ArcBetweenPoints(a,b, stroke_width=2,radius=1)
         #self.remove(p)
-        print(ta.get_arc_center())
-        print(np.linalg.norm(a-ta.get_arc_center()))
-        print(np.linalg.norm(b-ta.get_arc_center()))
-        self.play(ShowCreation(ta),run_time=2,rate_func=linear)
-        self.play(ShowCreation(Circle().move_to(ta.get_arc_center())),run_time=2,rate_func=linear)
+        #print(ta.get_arc_center())
+        #print(np.linalg.norm(a-ta.get_arc_center()))
+        #print(np.linalg.norm(b-ta.get_arc_center()))
+        self.play(ShowCreation(AP2),run_time=2,rate_func=linear)
+        self.play(ShowCreation(EX),run_time=2,rate_func=linear)
+        #self.play(ShowCreation(Circle().move_to(ta.get_arc_center())),run_time=2,rate_func=linear)
         self.wait(2)
 
 class DecimalNumberMK2(VMobject):
