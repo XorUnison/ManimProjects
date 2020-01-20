@@ -74,19 +74,7 @@ class TestZone(ZoomedScene):
         arct0=ArcBetweenPoints(np.array([0.5,0.5,0]),np.array([0,0.5,0]),stroke_width=0,angle=0)
         arct1=ArcBetweenPoints(np.array([0,0.5,0]),np.array([0,0,0]),stroke_width=0,angle=0)
         arct2=ArcBetweenPoints(np.array([0,0,0]),np.array([0.5,0,0]),stroke_width=0,angle=0)
-        arct3=ArcBetweenPoints(np.array([0.5,0,0]),np.array([0.5,0.5,0]),stroke_width=0,angle=-1)
-        print("Test")
-
-        #This method accurately gets the angle of an arc as it would've been put in
-        a=arct3.get_start()
-        b=arct3.get_points()[1]
-        c=arct3.get_end()
-        gl1=Line(a,c)
-        gl2=Line(a,b)
-        arcAngle=(gl1.get_angle()-gl2.get_angle())*2
-        
-        print(gl1.get_angle())
-        print(gl2.get_angle())
+        arct3=ArcBetweenPoints(np.array([0.5,0,0]),np.array([0.5,0.5,0]),stroke_width=0,angle=0)
         AP2=ArcPolygon(arct0,arct1,arct2,arct3,
                       fill_opacity=0.5,color=RED,stroke_width=3.0,stroke_color=GREEN)
 
@@ -129,7 +117,7 @@ class TestZone(ZoomedScene):
         #print(np.linalg.norm(a-ta.get_arc_center()))
         #print(np.linalg.norm(b-ta.get_arc_center()))
         self.play(ShowCreation(AP2),run_time=2,rate_func=linear)
-        #self.play(ShowCreation(EX),run_time=2,rate_func=linear)
+        self.play(ShowCreation(EX),run_time=5,rate_func=linear)
         #self.play(ShowCreation(Circle().move_to(ta.get_arc_center())),run_time=2,rate_func=linear)
         self.wait(2)
 

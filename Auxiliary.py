@@ -4,7 +4,7 @@ from manimlib.imports import *
 from scipy.spatial import distance
 import cmath
 import numpy as np
-
+from types import MethodType
 
 # ===SVG Class===
 class NewSVGMO(SVGMobject):
@@ -116,6 +116,15 @@ class Graph():
         return VGroup(*self.annulusArr)
 
 
+#Gets the angle of an arc, like it would have been put in an ArcBetweenPoints
+def get_arc_angle(arc):
+    a=arc.get_start()
+    b=arc.get_points()[1]
+    c=arc.get_end()
+    gl1=Line(a,c)
+    gl2=Line(a,b)
+    return (gl1.get_angle()-gl2.get_angle())*2
+
 # ===ArcPolygon===
 # The ArcPolygon is what it says, a polygon, but made from arcs.
 # More versatile than the standard polygon, but less comfort functions.
@@ -187,18 +196,35 @@ class ExclusionZone(VMobject):  # Work in progress
     def __init__(self, arcPolygon, **kwargs):
         VMobject.__init__(self, **kwargs)
         arcPolygon = arcPolygon.copy()
-        #We force CW orientation so the following code can be simpler without checking for orientation.
+        #We force CW orientation so the following code can be simpler, without checking for orientation.
         arcPolygon.force_orientation("CW")
         arcs=arcPolygon.get_arcs()
 
-        for i in range(len(arcs)):
-            arcs[i]
-            a=1
-            b=2
-            if i==0:
-                firstPoint=a
-            elif i==len(arcs):
-                lastPoint=b
+        arcs2=arcs
+        arcs2.append(arcs[0])
+        EXarcsOuter=[]
+        for i in range(len(arcs2)-1):
+            arcAngle=get_arc_angle(arcs2[i])
+            arcAngle2=get_arc_angle(arcs2[i+1])
+            a=arcs2[i].get_start()
+            b=arcs2[i].get_end()
+            c=arcs2[i+1].get_start()
+            d=arcs2[i+1].get_end()
+            aAngle=Line(a,b).get_angle()+arcAngle/2+math.pi/2
+            bAngle=Line(a,b).get_angle()-arcAngle/2+math.pi/2
+            cAngle=Line(c,d).get_angle()+arcAngle/2+math.pi/2
+            a=a+[math.sin(aAngle),math.cos(aAngle),0]
+            b=b+[math.sin(bAngle),math.cos(bAngle),0]
+            c=c+[math.sin(cAngle),math.cos(cAngle),0]
+            if not (a==b).all():
+                arc = ArcBetweenPoints(a, b, stroke_width=0, angle=arcAngle)
+                EXarcsOuter.append(arc)
+
+            halfdist = np.linalg.norm(b - c) / 2
+            arcHeight = 1 - math.sqrt(1 ** 2 - halfdist ** 2)
+            ang = math.acos((1 - arcHeight) / 1)
+            arc = ArcBetweenPoints(b, c, stroke_width=0, angle=-ang*2)
+            EXarcsOuter.append(arc)
 
 
 
@@ -240,13 +266,13 @@ class ExclusionZone(VMobject):  # Work in progress
             EXarcsInner.append(arc)
             
 
-        #ExZone = ArcPolygon(*EXarcsOuter)
+        ExZone = ArcPolygon(*EXarcsOuter)
         InZone = ArcPolygon(*EXarcsInner)
         # self.ExZone=ExZone
         # ,**APkwargs)
         # Last, the simple center tile
         # Tile=ArcPolygon(*arcs,**APkwargs)
-        #self.append_points(ExZone.get_points())
+        self.append_points(ExZone.get_points())
         self.append_points(InZone.get_points())
 
     def get_vertices(self):
