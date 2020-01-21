@@ -130,12 +130,16 @@ def get_arc_angle(arc):
 # More versatile than the standard polygon, but less comfort functions.
 # It does however have functions to check and force orientation, these are used for exclusion zones.
 class ArcPolygon(VMobject):
-    CONFIG = {"color": BLUE}
+    #CONFIG = {"color": BLUE}
 
     def __init__(self, *arcs, **kwargs):
-        self.arcs = [*arcs]
-        # Most of the init method here is built from the round_corners in Polygon
+        if not all([isinstance(m, Arc) or isinstance(m, ArcBetweenPoints) for m in arcs]):
+            raise Exception("All submobjects must be of type Arc/ArcBetweenPoints")
         VMobject.__init__(self, **kwargs)
+        self.add(*arcs)
+        #self.arcs = [*arcs]
+        self.arcs = VGroup(*arcs)
+        # Most of the init method here is built from the round_corners in Polygon
         for arc1, arc2 in adjacent_pairs(arcs):
             self.append_points(arc1.points)
             line = Line(arc1.get_end(), arc2.get_start())
@@ -200,7 +204,7 @@ class ExclusionZone(VMobject):  # Work in progress
         arcPolygon.force_orientation("CW")
         arcs=arcPolygon.get_arcs()
 
-        arcs2=arcs
+        arcs2=[*arcs]
         arcs2.append(arcs[0])
         EXarcsOuter=[]
         for i in range(len(arcs2)-1):
@@ -210,12 +214,12 @@ class ExclusionZone(VMobject):  # Work in progress
             b=arcs2[i].get_end()
             c=arcs2[i+1].get_start()
             d=arcs2[i+1].get_end()
-            aAngle=Line(a,b).get_angle()+arcAngle/2+math.pi/2
-            bAngle=Line(a,b).get_angle()-arcAngle/2+math.pi/2
-            cAngle=Line(c,d).get_angle()+arcAngle/2+math.pi/2
-            a=a+[math.sin(aAngle),math.cos(aAngle),0]
-            b=b+[math.sin(bAngle),math.cos(bAngle),0]
-            c=c+[math.sin(cAngle),math.cos(cAngle),0]
+            aAngle=Line(a,b).get_angle()-arcAngle/2-math.pi/2
+            bAngle=Line(a,b).get_angle()+arcAngle/2-math.pi/2
+            cAngle=Line(c,d).get_angle()-arcAngle/2-math.pi/2
+            a=a+[math.cos(aAngle),math.sin(aAngle),0]
+            b=b+[math.cos(bAngle),math.sin(bAngle),0]
+            c=c+[math.cos(cAngle),math.sin(cAngle),0]
             if not (a==b).all():
                 arc = ArcBetweenPoints(a, b, stroke_width=0, angle=arcAngle)
                 EXarcsOuter.append(arc)
@@ -223,7 +227,7 @@ class ExclusionZone(VMobject):  # Work in progress
             halfdist = np.linalg.norm(b - c) / 2
             arcHeight = 1 - math.sqrt(1 ** 2 - halfdist ** 2)
             ang = math.acos((1 - arcHeight) / 1)
-            arc = ArcBetweenPoints(b, c, stroke_width=0, angle=-ang*2)
+            arc = ArcBetweenPoints(b, c, stroke_width=0, angle=ang*2)
             EXarcsOuter.append(arc)
 
 
