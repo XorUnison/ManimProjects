@@ -20,28 +20,47 @@ NL=NumberLine()
 NPac=NumberPlane().add_coordinates()
 NLan=NumberLine().add_numbers()
 
+cPrototype = {"stroke_width":3,"stroke_color":BLUE,"fill_opacity":1,"color": PURPLE}
+cArc = {"stroke_width":0,"stroke_color":BLUE,"fill_opacity":0,"color": PURPLE}
+cArc2 = {"stroke_width":3,"stroke_color":YELLOW,"fill_opacity":0,"color": PURPLE}
+cArc3 = {"stroke_width":5,"stroke_color":"#ff0000","fill_opacity":0,"color": PURPLE}
+cExclusion = {"stroke_width":3,"stroke_color":GREEN,"fill_opacity":0.5,"color": RED}
+
+arc0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),angle=0,**cArc)
+arc1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),angle=0,**cArc)
+arc2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),angle=0,**cArc)
+pTriangle=ArcPolygon(arc0,arc1,arc2,**cPrototype).move_to([0,0,0])
+
+arc0=ArcBetweenPoints(np.array([0,0,0]),np.array([1/r2,0,0]),angle=0,**cArc)
+arc1=ArcBetweenPoints(np.array([1/r2,0,0]),np.array([1/r2,1/r2,0]),angle=0,**cArc)
+arc2=ArcBetweenPoints(np.array([1/r2,1/r2,0]),np.array([0,1/r2,0]),angle=0,**cArc)
+arc3=ArcBetweenPoints(np.array([0,1/r2,0]),np.array([0,0,0]),angle=0,**cArc)
+pSquare=ArcPolygon(arc0,arc1,arc2,arc3,**cPrototype).move_to([0,0,0])
+
+arc0=ArcBetweenPoints(np.array([-0.5,0,0]),np.array([-0.25,-r3/4,0]),angle=0,**cArc)
+arc1=ArcBetweenPoints(np.array([-0.25,-r3/4,0]),np.array([0.25,-r3/4,0]),angle=0,**cArc)
+arc2=ArcBetweenPoints(np.array([0.25,-r3/4,0]),np.array([0.5,0,0]),angle=0,**cArc)
+arc3=ArcBetweenPoints(np.array([0.5,0,0]),np.array([0.25,r3/4,0]),angle=0,**cArc)
+arc4=ArcBetweenPoints(np.array([0.25,r3/4,0]),np.array([-0.25,r3/4,0]),angle=0,**cArc)
+arc5=ArcBetweenPoints(np.array([-0.25,r3/4,0]),np.array([-0.5,0,0]),angle=0,**cArc)
+pHexagon=ArcPolygon(arc0,arc1,arc2,arc3,arc4,arc5,**cPrototype)
+
+p1=np.array([0.5-(r3/2),0,0])
+p2=np.array([-0.5+(r3/2),0,0])
+p3=np.array([0.5,0.5,0])
+p4=np.array([0,1.5-(r3/2),0])
+p5=np.array([-0.5,0.5,0])
+ang=computeABPAngle(p2,p3)*2
+arc0=ArcBetweenPoints(p1,p2,angle=0,**cArc)
+arc1=ArcBetweenPoints(p2,p3,angle=ang,**cArc)
+arc2=ArcBetweenPoints(p3,p4,angle=-ang,**cArc)
+arc3=ArcBetweenPoints(p4,p5,angle=-ang,**cArc)
+arc4=ArcBetweenPoints(p5,p1,angle=ang,**cArc)
+pGreyPent=ArcPolygon(arc0,arc1,arc2,arc3,arc4,**cPrototype).move_to([0,0,0])
+
 class Thumbnail(ZoomedScene):
     def construct(self):
-        funcAry=[]
-        for radii in [0.2,0.4,0.6,0.8,1]:
-            funcAry.append(FunctionGraph(lambda x:cmath.sqrt(funcR**2-x**2)*radii,x_min=-funcR,
-                                         x_max=funcR,color="#00FF00",stroke_width=4).shift([3,2,0]))
-            funcAry.append(FunctionGraph(lambda x:-cmath.sqrt(funcR**2-x**2)*radii,x_min=-funcR,
-                                         x_max=funcR,color="#00FF00",stroke_width=4).shift([3,2,0]))
-        funcVG=VGroup(*funcAry).scale(1.003)
-        funcVG=VGroup(K2aB[0].shift([3,2,0]),funcVG).scale(2)
-        speckles=ImageMobject("PureRGBNoiseCirc").scale(0.14).shift([-3,2,0])
-        speckles2=speckles.copy().shift([1,0,0])
-        speckles3=speckles.copy().shift([0.5,r3/2,0])
-        qm=TextMobject("?").scale(1.8).shift([0.5,0.3,0])
-        speckleVG=VGroup(qm,K3a).shift([-3,2,0]).scale(2)
-        speckleG=Group(speckles,speckles2,speckles3).scale(2)
-        self.add(NP)
-        self.add(speckles,speckles2,speckles3,speckleVG)
-        self.add(funcVG)
-        self.bring_to_front(K2aB[0])
-        self.add(TextMobject("Hadwiger-Nelson\\\\Problem").shift([-3.5,-2,0]).scale(1.7))
-        self.add(TextMobject("Why tiles?").shift([3.5,-2,0]).scale(2.5))
+        self.wait()
         #Save via -s
         
 class TestZone(ZoomedScene):
@@ -53,37 +72,97 @@ class TestZone(ZoomedScene):
     }
     def construct(self):
         def update_EX(mob,alpha):
-            new_mob=ExclusionZone(AP3,fill_opacity=0.5,color=RED,stroke_width=3,stroke_color=GREEN)
+            new_mob=ExclusionZone(AP2,fill_opacity=0.5,color=PURPLE,stroke_width=2,stroke_color=BLUE)
             mob.become(new_mob)
+        def update_EX2(mob,alpha):
+            arctr0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),stroke_width=0,angle=-2*alpha)
+            #arctr1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),stroke_width=0,angle=-1*alpha)
+            #arctr2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),stroke_width=0,angle=-1*alpha)
+            new_mob2=ArcPolygon(arctr0,arctr1,arctr2,
+                fill_opacity=0.5,color=BLUE,stroke_width=3.0,stroke_color=GREEN)
+            new_mob=ExclusionZone(new_mob2,fill_opacity=0.5,color=RED,stroke_width=3,stroke_color=GREEN)
+            mob.become(new_mob)
+            AP3.become(new_mob2)
             
         self.add(NP)
         self.activate_zooming(animate=False)
-        arct0=ArcBetweenPoints(np.array([0.5,0.5,0]),np.array([0,0.5,0]),stroke_width=0,angle=0)
-        arct1=ArcBetweenPoints(np.array([0,0.5,0]),np.array([0,0,0]),stroke_width=0,angle=0)
-        arct2=ArcBetweenPoints(np.array([0,0,0]),np.array([0.5,0,0]),stroke_width=0,angle=0)
-        arct3=ArcBetweenPoints(np.array([0.5,0,0]),np.array([0.5,0.5,0]),stroke_width=0,angle=0)
+        arct0=ArcBetweenPoints(np.array([0.7,0.7,0]),np.array([0,0.7,0]),stroke_width=0,angle=0)
+        arct1=ArcBetweenPoints(np.array([0,0.7,0]),np.array([0,0,0]),stroke_width=0,angle=0)
+        arct2=ArcBetweenPoints(np.array([0,0,0]),np.array([0.7,0,0]),stroke_width=0,angle=0)
+        arct3=ArcBetweenPoints(np.array([0.7,0,0]),np.array([0.7,0.7,0]),stroke_width=0,angle=0)
         AP2=ArcPolygon(arct0,arct1,arct2,arct3,
                       fill_opacity=0.5,color=RED,stroke_width=3.0,stroke_color=GREEN)
 
-        arctr0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),stroke_width=0,angle=0.5)
-        arctr1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),stroke_width=0,angle=0.5)
-        arctr2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),stroke_width=0,angle=0.5)
+        arctr0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),stroke_width=0,angle=0)
+        arctr1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),stroke_width=0,angle=0)
+        arctr2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),stroke_width=0,angle=0)
         AP3=ArcPolygon(arctr0,arctr1,arctr2,
                 fill_opacity=0.5,color=BLUE,stroke_width=3.0,stroke_color=GREEN)
         #AP3.shift([0.1,0.1,0]).scale(0.5)
         
         #self.play(ShowCreation(AP),run_time=13,rate_func=linear)
-        EX=ExclusionZone(AP3,fill_opacity=0.5,color=RED,stroke_width=3,stroke_color=GREEN)
-        self.play(ShowCreation(AP3),run_time=4,rate_func=linear)
-        self.play(ShowCreation(EX),run_time=5,rate_func=linear)
-        self.wait(2)
+        EX=ExclusionZone(AP2,fill_opacity=0.5,color=PURPLE,stroke_width=2,stroke_color=BLUE)
+        self.play(ShowCreation(AP2),run_time=2,rate_func=linear)
+        self.play(ShowCreation(EX),run_time=2,rate_func=linear)
+        #self.play(ShowCreation(EX.get_preDual()),run_time=2,rate_func=linear)
+        self.wait(3)
 
+        self.play(ApplyMethod(AP2.scale,0.02),#1.36),
+                  UpdateFromAlphaFunc(EX,update_EX),run_time=13)
+        #self.play(UpdateFromAlphaFunc(EX,update_EX2),run_time=13)
+        
+        #self.wait(3)
 
-        self.play(ApplyMethod(AP3.scale,0.01),
-                  UpdateFromAlphaFunc(EX,update_EX),
-                  run_time=9)
-        self.wait(2)
-
+class S0_TriangleGrid(ZoomedScene):
+    CONFIG = {
+        "zoomed_display_corner": [0,0,0],
+        "zoomed_display_height": FRAME_HEIGHT,
+        "zoomed_display_width": FRAME_WIDTH,
+        "zoom_factor": 0.6,
+    }
+    def construct(self):
+        #It's time to figure out how to neatly create the grids we ultimately want to show
+        self.wait()
+        
+class S0_SquareGrid(ZoomedScene):
+    CONFIG = {
+        "zoomed_display_corner": [0,0,0],
+        "zoomed_display_height": FRAME_HEIGHT,
+        "zoomed_display_width": FRAME_WIDTH,
+        "zoom_factor": 0.6,
+    }
+    def construct(self):
+        self.wait()
+        
+class S0_HexagonGrid(ZoomedScene):
+    CONFIG = {
+        "zoomed_display_corner": [0,0,0],
+        "zoomed_display_height": FRAME_HEIGHT,
+        "zoomed_display_width": FRAME_WIDTH,
+        "zoom_factor": 0.6,
+    }
+    def construct(self):
+        def update_EX(mob,alpha):
+            new_mob=ExclusionZone(pGreyPent,**cExclusion)
+            mob.become(new_mob)
+        self.add(NP)
+        self.activate_zooming(animate=False)
+        self.play(ShowCreation(pGreyPent),run_time=3)
+        EX=ExclusionZone(pGreyPent,**cExclusion)
+        self.play(ShowCreation(EX),run_time=4,rate_func=linear)
+        self.play(ApplyMethod(pGreyPent.scale,0.02),UpdateFromAlphaFunc(EX,update_EX),run_time=4)
+        self.wait()
+        
+class S0_DeGreyGrid(ZoomedScene):
+    CONFIG = {
+        "zoomed_display_corner": [0,0,0],
+        "zoomed_display_height": FRAME_HEIGHT,
+        "zoomed_display_width": FRAME_WIDTH,
+        "zoom_factor": 0.6,
+    }
+    def construct(self):
+        self.wait()
+        
 class DecimalNumberMK2(VMobject):
     CONFIG = {
         "num_decimal_places": 2,
@@ -204,7 +283,7 @@ class DecimalNumberMK2(VMobject):
         yPos=new_decimal.get_center()[1]
         
         for nr in new_decimal:
-            if nr.get_tex_string() is not ".":
+            if nr.get_tex_string() != ".":
                 nr.scale(height/nr.get_height())
                 nr.shift([0,(yPos-nr.get_center()[1]),0])
 
