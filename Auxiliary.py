@@ -132,6 +132,14 @@ def get_arc_angle(arc):
     gl2=Line(a,b)
     return (gl1.get_angle()-gl2.get_angle())*2
 
+class UpdateFromAlphaFuncArg(UpdateFromFunc):
+    def __init__(self, mobject, update_function, arg, **kwargs):
+        self.update_function = update_function
+        self.arg=arg
+        super().__init__(mobject, update_function, **kwargs)
+    def interpolate_mobject(self, alpha):
+        self.update_function(self.mobject, alpha, self.arg)
+        
 # ===ArcPolygon===
 # The ArcPolygon is what it says, a polygon, but made from arcs.
 # More versatile than the standard polygon, but less comfort functions.
@@ -242,7 +250,7 @@ class ExclusionZone(VMobject):
                 EXarcsOuter.append(arc)
 
             #This will fill in the rest with unit radius arcs
-            ang = ang = computeABPAngle(arcParams[i][1],arcParams[i+1][0])
+            ang = computeABPAngle(arcParams[i][1],arcParams[i+1][0])
             arc = ArcBetweenPoints(arcParams[i][1],arcParams[i+1][0], stroke_width=0, angle=ang*2)
             EXarcsOuter.append(arc)
 
@@ -293,6 +301,60 @@ class ExclusionZone(VMobject):
     def get_preDual(self):
         return self.preDual
 
+#===Tiling===
+class Tiling(VMobject):
+    def __init__(self, tilePrototype, xOffset, yOffset, xRange, yRange, **kwargs):
+        VMobject.__init__(self, **kwargs)
+        #Input structure: (Tile, [Function,Value,Function,Value...],[Function,Value...],Range,Range)
+        #The functions here are typically Mobject.shift and Mobject.rotate
+
+        #Here we add one more to the range, so that a -1,1 range also gives us 3 tiles [-1,0,1] as opposed to 2 [-1,0]
+        self.xRange=range(xRange.start,xRange.stop+xRange.step,xRange.step)
+        self.yRange=range(yRange.start,yRange.stop+yRange.step,yRange.step)
+
+        #Here we define both an array and a JSON dict
+        #We need the array to make a VGroup, which in turn we need to draw the tiling and adjust it (like scaling)
+        #Trying to draw the tiling directly will not properly work.
+        #The tileDict then is used to do stuff with specific tiles in a simple manner (tiling.tileDict()[x][y])
+        self.tileDict={}
+        tiles=[]
+        for x in self.xRange:
+            self.tileDict[x]={}
+            for y in self.yRange:
+                #print("Tile:",x,",",y)
+                tile=tilePrototype.deepcopy()
+                self.transform_tile(x,xOffset,tile)
+                self.transform_tile(y,yOffset,tile)
+                self.add(*tile)
+                self.tileDict[x][y]=tile
+                tiles.append(tile)
+        self.VGroup=VGroup(*tiles)
+
+    #This method takes care of computing the necessary offsets for the tiles.
+    #First, note we're making use of the fact we can multiply all the possible inputs we could get here.
+    #(Angles/scales as scalars are obvious, coordinates for shifts have to be delivered as numpy arrays to work)
+    #This method also applies the calculated operations directly
+    def transform_tile(self,direction,offset,tile):
+        for i in range(len(offset)):
+            if direction<0:
+                step=-len(offset)
+                factor=-1
+                dist=-i
+                directionnr=len(range(dist,direction,step))*factor
+                for j in range(int(len(offset[i])/2)):
+                    offset[-1-i][0+j*2](tile,directionnr*offset[-1-i][1+j*2])
+            else:
+                step=len(offset)
+                factor=1
+                dist=i
+                directionnr=len(range(dist,direction,step))*factor
+                for j in range(int(len(offset[i])/2)):
+                    offset[i][0+j*2](tile,directionnr*offset[i][1+j*2])
+                    
+    def get_tileDict(self):
+        return self.tileDict
+    def get_VGroup(self):
+        return self.VGroup
 
 # ===Measure Bar===
 class MeasureBar():

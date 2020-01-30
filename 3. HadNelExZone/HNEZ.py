@@ -29,7 +29,17 @@ cExclusion = {"stroke_width":3,"stroke_color":GREEN,"fill_opacity":0.5,"color": 
 arc0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),angle=0,**cArc)
 arc1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),angle=0,**cArc)
 arc2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),angle=0,**cArc)
-pTriangle=ArcPolygon(arc0,arc1,arc2,**cPrototype).move_to([0,0,0])
+pTriangle=ArcPolygon(arc0,arc1,arc2,**cPrototype).shift([-0.5,-r3/6,0])
+
+ang=computeABPAngle(np.array([0,0,0]),np.array([1,0,0]))*2
+arc0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),angle=ang,**cArc)
+arc1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),angle=ang,**cArc)
+arc2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),angle=ang,**cArc)
+pRTriangle=ArcPolygon(arc0,arc1,arc2,**cPrototype).shift([-0.5,-r3/6,0])#Reuleaux Triangle
+arc0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),angle=-ang,**cArc)
+arc1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),angle=-ang,**cArc)
+arc2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),angle=-ang,**cArc)
+pRMTriangle=ArcPolygon(arc0,arc1,arc2,**cPrototype).shift([-0.5,-r3/6,0])
 
 arc0=ArcBetweenPoints(np.array([0,0,0]),np.array([1/r2,0,0]),angle=0,**cArc)
 arc1=ArcBetweenPoints(np.array([1/r2,0,0]),np.array([1/r2,1/r2,0]),angle=0,**cArc)
@@ -43,7 +53,7 @@ arc2=ArcBetweenPoints(np.array([0.25,-r3/4,0]),np.array([0.5,0,0]),angle=0,**cAr
 arc3=ArcBetweenPoints(np.array([0.5,0,0]),np.array([0.25,r3/4,0]),angle=0,**cArc)
 arc4=ArcBetweenPoints(np.array([0.25,r3/4,0]),np.array([-0.25,r3/4,0]),angle=0,**cArc)
 arc5=ArcBetweenPoints(np.array([-0.25,r3/4,0]),np.array([-0.5,0,0]),angle=0,**cArc)
-pHexagon=ArcPolygon(arc0,arc1,arc2,arc3,arc4,arc5,**cPrototype)
+pHexagon=ArcPolygon(arc0,arc1,arc2,arc3,arc4,arc5,**cPrototype).rotate(math.pi/6)
 
 p1=np.array([0.5-(r3/2),0,0])
 p2=np.array([-0.5+(r3/2),0,0])
@@ -58,6 +68,7 @@ arc3=ArcBetweenPoints(p4,p5,angle=-ang,**cArc)
 arc4=ArcBetweenPoints(p5,p1,angle=ang,**cArc)
 pGreyPent=ArcPolygon(arc0,arc1,arc2,arc3,arc4,**cPrototype).move_to([0,0,0])
 
+
 class Thumbnail(ZoomedScene):
     def construct(self):
         self.wait()
@@ -71,47 +82,28 @@ class TestZone(ZoomedScene):
         "zoom_factor": 0.6,
     }
     def construct(self):
-        def update_EX(mob,alpha):
-            new_mob=ExclusionZone(AP2,fill_opacity=0.5,color=PURPLE,stroke_width=2,stroke_color=BLUE)
+        def update_AP(mob,alpha):
+            arcs=pTriangle.get_arcs()
+            new_mob=ArcPolygon(*arcs,**pTriangle.CONFIG).move_to([0,0,0])
             mob.become(new_mob)
-        def update_EX2(mob,alpha):
-            arctr0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),stroke_width=0,angle=-2*alpha)
-            #arctr1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),stroke_width=0,angle=-1*alpha)
-            #arctr2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),stroke_width=0,angle=-1*alpha)
-            new_mob2=ArcPolygon(arctr0,arctr1,arctr2,
-                fill_opacity=0.5,color=BLUE,stroke_width=3.0,stroke_color=GREEN)
-            new_mob=ExclusionZone(new_mob2,fill_opacity=0.5,color=RED,stroke_width=3,stroke_color=GREEN)
+        def update_EX(mob,alpha,tile):
+            new_mob=ExclusionZone(pTriangle,**mob.__dict__)
+            print(tile)
             mob.become(new_mob)
-            AP3.become(new_mob2)
             
         self.add(NP)
         self.activate_zooming(animate=False)
-        arct0=ArcBetweenPoints(np.array([0.7,0.7,0]),np.array([0,0.7,0]),stroke_width=0,angle=0)
-        arct1=ArcBetweenPoints(np.array([0,0.7,0]),np.array([0,0,0]),stroke_width=0,angle=0)
-        arct2=ArcBetweenPoints(np.array([0,0,0]),np.array([0.7,0,0]),stroke_width=0,angle=0)
-        arct3=ArcBetweenPoints(np.array([0.7,0,0]),np.array([0.7,0.7,0]),stroke_width=0,angle=0)
-        AP2=ArcPolygon(arct0,arct1,arct2,arct3,
-                      fill_opacity=0.5,color=RED,stroke_width=3.0,stroke_color=GREEN)
-
-        arctr0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),stroke_width=0,angle=0)
-        arctr1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),stroke_width=0,angle=0)
-        arctr2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),stroke_width=0,angle=0)
-        AP3=ArcPolygon(arctr0,arctr1,arctr2,
-                fill_opacity=0.5,color=BLUE,stroke_width=3.0,stroke_color=GREEN)
-        #AP3.shift([0.1,0.1,0]).scale(0.5)
-        
-        #self.play(ShowCreation(AP),run_time=13,rate_func=linear)
-        EX=ExclusionZone(AP2,fill_opacity=0.5,color=PURPLE,stroke_width=2,stroke_color=BLUE)
-        self.play(ShowCreation(AP2),run_time=2,rate_func=linear)
+        EX=ExclusionZone(pTriangle,fill_opacity=0.5,color=GREEN,stroke_width=2,stroke_color=BLUE)
+        self.play(ShowCreation(pTriangle),run_time=2,rate_func=linear)
         self.play(ShowCreation(EX),run_time=2,rate_func=linear)
         #self.play(ShowCreation(EX.get_preDual()),run_time=2,rate_func=linear)
-        self.wait(3)
+        self.wait(1)
 
-        self.play(ApplyMethod(AP2.scale,0.02),#1.36),
-                  UpdateFromAlphaFunc(EX,update_EX),run_time=13)
+        self.play(Transform(pTriangle,pRMTriangle),
+                  UpdateFromAlphaFuncArg(EX,update_EX,"test"),run_time=5)
         #self.play(UpdateFromAlphaFunc(EX,update_EX2),run_time=13)
         
-        #self.wait(3)
+        self.wait(3)
 
 class S0_TriangleGrid(ZoomedScene):
     CONFIG = {
@@ -121,7 +113,13 @@ class S0_TriangleGrid(ZoomedScene):
         "zoom_factor": 0.6,
     }
     def construct(self):
-        #It's time to figure out how to neatly create the grids we ultimately want to show
+        self.add(NP)
+        t=Tiling(pTriangle,
+                 [[Mobject.shift,np.array([0.5,0,0]),Mobject.rotate,math.pi]],
+                 [[Mobject.shift,np.array([0,r3/2,0]),Mobject.rotate,math.pi]],range(-6,6),range(-1,2))
+        v=t.get_VGroup()
+        self.play(ShowCreation(v),run_time=5)
+        self.play(ApplyMethod(v.scale,0.5))
         self.wait()
         
 class S0_SquareGrid(ZoomedScene):
@@ -132,7 +130,17 @@ class S0_SquareGrid(ZoomedScene):
         "zoom_factor": 0.6,
     }
     def construct(self):
-        self.wait()
+        self.add(NP)
+        t=Tiling(pSquare,
+                 [[Mobject.shift,np.array([1/r2,0,0])]],
+                 [[Mobject.shift,np.array([0,1/r2,0])]],range(-6,6),range(-1,1))
+        v=t.get_VGroup()
+        self.play(ShowCreation(pHexagon),run_time=1)
+        #self.play(ApplyMethod(v.scale,0.5))
+        #self.play(ApplyMethod(t.get_dict()[0][-1].shift,[1,1,0]))
+        #self.play(ApplyMethod(v.scale,2))
+        #self.play(ShowCreation(pSquare))
+        self.wait(2)
         
 class S0_HexagonGrid(ZoomedScene):
     CONFIG = {
@@ -142,20 +150,34 @@ class S0_HexagonGrid(ZoomedScene):
         "zoom_factor": 0.6,
     }
     def construct(self):
-        def update_EX(mob,alpha):
-            new_mob=ExclusionZone(pGreyPent,**cExclusion)
+        def update_EX(mob,alpha,tile):
+            new_mob=ExclusionZone(tile,**mob.__dict__)
             mob.become(new_mob)
         self.add(NP)
+        t=Tiling(pHexagon,[[Mobject.shift,np.array([r3/2,0,0])]],
+                          [[Mobject.shift,np.array([r3/4,0.75,0])],[Mobject.shift,np.array([-r3/4,0.75,0])]],range(-7,7),range(-4,4))
         self.activate_zooming(animate=False)
-        self.play(ShowCreation(pGreyPent),run_time=3)
-        EX=ExclusionZone(pGreyPent,**cExclusion)
-        self.play(ShowCreation(EX),run_time=4,rate_func=linear)
-        self.play(ApplyMethod(pGreyPent.scale,0.02),UpdateFromAlphaFunc(EX,update_EX),run_time=4)
+        v=t.get_VGroup()
+        self.play(ShowCreation(v),run_time=10,rate_func=linear)
+        EX=ExclusionZone(t.get_dict()[0][0],**cExclusion)
+        self.play(ShowCreation(EX),run_time=5)
+
+
+        
+        self.play(ApplyMethod(v.scale,0.8),
+                  UpdateFromAlphaFuncArg(EX,update_EX,t.get_dict()[0][0]),run_time=5)
+
+        
+        #self.play(ApplyMethod(v.scale,0.8),run_time=4)
+        #self.play(ShowCreation(pGreyPent),run_time=3)
+        #EX=ExclusionZone(pGreyPent,**cExclusion)
+        #self.play(ShowCreation(EX),run_time=4,rate_func=linear)
+        #self.play(ApplyMethod(pGreyPent.scale,0.02),UpdateFromAlphaFunc(EX,update_EX),run_time=4)
         self.wait()
         
 class S0_DeGreyGrid(ZoomedScene):
     CONFIG = {
-        "zoomed_display_corner": [0,0,0],
+        "zoomed_display_corner": [0,0,0],   
         "zoomed_display_height": FRAME_HEIGHT,
         "zoomed_display_width": FRAME_WIDTH,
         "zoom_factor": 0.6,
