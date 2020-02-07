@@ -5,6 +5,7 @@ from scipy.spatial import distance
 import cmath
 import numpy as np
 from types import MethodType
+import inspect
 
 # ===SVG Class===
 class NewSVGMO(SVGMobject):
@@ -305,24 +306,28 @@ class ExclusionZone(VMobject):
 class Tiling(VMobject):
     def __init__(self, tilePrototype, xOffset, yOffset, xRange, yRange, **kwargs):
         VMobject.__init__(self, **kwargs)
-        #Input structure: (Tile, [Function,Value,Function,Value...],[Function,Value...],Range,Range)
-        #The functions here are typically Mobject.shift and Mobject.rotate
+        #Input structure: (Tile Prototype, [Function,Value,Function,Value...],[Function,Value...],Range,Range)
+        #For the tile any Mobject or even a VGroup can be passed.
+        #To achieve mixed tilings a function(x,y) can be passed that returns the tile based on conditions computed with x,y
+        #The functions for the offsets are typically Mobject.shift and Mobject.rotate
 
-        #Here we add one more to the range, so that a -1,1 range also gives us 3 tiles [-1,0,1] as opposed to 2 [-1,0]
+        #Here we add one more to the range, so that a -1,1 step 1 range also gives us 3 tiles [-1,0,1] as opposed to 2 [-1,0]
         self.xRange=range(xRange.start,xRange.stop+xRange.step,xRange.step)
         self.yRange=range(yRange.start,yRange.stop+yRange.step,yRange.step)
 
         #Here we define both an array and a JSON dict
         #We need the array to make a VGroup, which in turn we need to draw the tiling and adjust it (like scaling)
-        #Trying to draw the tiling directly will not properly work.
+        #(Trying to draw the tiling directly will not properly work)
         #The tileDict then is used to do stuff with specific tiles in a simple manner (tiling.tileDict()[x][y])
         self.tileDict={}
         tiles=[]
         for x in self.xRange:
             self.tileDict[x]={}
             for y in self.yRange:
-                #print("Tile:",x,",",y)
-                tile=tilePrototype.deepcopy()
+                if inspect.isfunction(tilePrototype):
+                    tile=tilePrototype(x,y).deepcopy()
+                else:
+                    tile=tilePrototype.deepcopy()
                 self.transform_tile(x,xOffset,tile)
                 self.transform_tile(y,yOffset,tile)
                 self.add(*tile)
@@ -331,7 +336,7 @@ class Tiling(VMobject):
         self.VGroup=VGroup(*tiles)
 
     #This method takes care of computing the necessary offsets for the tiles.
-    #First, note we're making use of the fact we can multiply all the possible inputs we could get here.
+    #Note we're making use of the fact we can multiply all the possible inputs we could get here.
     #(Angles/scales as scalars are obvious, coordinates for shifts have to be delivered as numpy arrays to work)
     #This method also applies the calculated operations directly
     def transform_tile(self,direction,offset,tile):
