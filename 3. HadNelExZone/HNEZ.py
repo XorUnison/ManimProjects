@@ -232,11 +232,8 @@ class S0_TriangleGrid(ZoomedScene):
         #Begin scene
         self.add(NP)
         self.activate_zooming(animate=False)
-        #self.play(FadeIn(vFC))
-        #self.play(Transform(vFC,vRinvImprovedC))
-        #self.wait()
 
-        self.play(ShowCreation(v),run_time=2)
+        self.play(ShowCreation(v),run_time=5,rate_func=linear)
         EX=ExclusionZone(t.tileDict[0][0],**cExclusion)
         self.play(ShowCreation(EX),run_time=3)
 
@@ -283,6 +280,7 @@ class S0_TriangleGrid(ZoomedScene):
         self.wait(5)
         self.play(FadeOut(ExHex2),FadeOut(EX))
         self.wait(2)
+        #Uncreate(stuff)
         
 class S0_SquareGrid(ZoomedScene):
     CONFIG = {
