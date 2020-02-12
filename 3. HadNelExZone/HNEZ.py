@@ -71,6 +71,19 @@ pGreyUnit=VGroup(pGreyPent,pGreyPent.deepcopy().rotate(math.pi).shift([0,-1.5+(r
                  pGreyPent.deepcopy().rotate(-math.pi/2).shift([-0.685,(-1.5+(r3/2))/2,0]),
                  pGreyPent.deepcopy().rotate(math.pi/2).shift([0.685,(-1.5+(r3/2))/2,0])).move_to([0,0,0])
 
+titleRect=Rectangle(height=1,width=8,color=BLACK,fill_opacity=1,stroke_color=WHITE)
+titleFont="Lucida Console"
+CC8=ColorCircle(["#aaaaaa","#00ff00","#ffff00","#ff7b00","#ff0000","#dd00ff","#0000ff","#00ffff"]).scale(0.35).shift([-2,-1.5,0]).shift([1.2,0,0])
+CC7=ColorCircle(["#00ff00","#ffff00","#ff7b00","#ff0000","#dd00ff","#0000ff","#00ffff"]).scale(0.35).shift([-2,-1.5,0]).shift([1.2,0,0])
+eight=TexMobject("8").shift([1.2,0,0])
+seven=TexMobject("7").shift([1.2,0.05,0])
+yGRect=Rectangle(height=1.2,width=3.5,color=BLACK,fill_opacity=1,stroke_color=WHITE)
+yGt=TexMobject("\gamma(G_{T})=").shift([-0.55,0,0])
+yGr=TexMobject("\gamma(G_{R})=").shift([-0.55,0,0])
+yGs=TexMobject("\gamma(G_{S})=").shift([-0.55,0,0])
+yGh=TexMobject("\gamma(G_{H})=").shift([-0.55,0,0])
+yGdp=TexMobject("\gamma(G_{DP})=").shift([-0.5,0,0])
+
 def update_EX(mob,alpha,tile):
     new_mob=ExclusionZone(tile,**mob.__dict__)
     mob.become(new_mob)
@@ -94,27 +107,20 @@ class TestZone(ZoomedScene):
         "zoom_factor": 0.6,
     }
     def construct(self):
-        def update_AP(mob,alpha):
-            arcs=pTriangle.get_arcs()
-            new_mob=ArcPolygon(*arcs,**pTriangle.CONFIG).move_to([0,0,0])
-            mob.become(new_mob)
-        def update_EX(mob,alpha,tile):
-            new_mob=ExclusionZone(pTriangle,**mob.__dict__)
-            print(tile)
-            mob.become(new_mob)
             
         self.add(NP)
         self.activate_zooming(animate=False)
-        EX=ExclusionZone(pTriangle,fill_opacity=0.5,color=GREEN,stroke_width=2,stroke_color=BLUE)
-        self.play(ShowCreation(pTriangle),run_time=2,rate_func=linear)
-        self.play(ShowCreation(EX),run_time=2,rate_func=linear)
-        #self.play(ShowCreation(EX.get_preDual()),run_time=2,rate_func=linear)
-        self.wait(1)
 
-        self.play(Transform(pTriangle,pRMTriangle),
-                  UpdateFromAlphaFuncArg(EX,update_EX,"test"),run_time=5)
-        #self.play(UpdateFromAlphaFunc(EX,update_EX2),run_time=13)
+
         
+
+        
+        #self.add(rect)
+        self.play(Write(yG),run_time=2)
+        #self.play(Write(TM),run_time=2)
+        #self.play(FadeOut(TM),run_time=2)
+        #self.play(Transform(TM,TM2))
+
         self.wait(3)
 
 class S0_TriangleGrid(ZoomedScene):
@@ -228,14 +234,21 @@ class S0_TriangleGrid(ZoomedScene):
         partialColor(tRinvImproved,HexTilesImproved)
         sevenColor(tRinvImprovedC)
 
+        T=Text("Triangular Tiling",font=titleFont).scale(0.7)
+        R=Text("Reuleaux Tiling",font=titleFont).scale(0.7)
+        tTitle=VGroup(titleRect.copy(),T).shift([0,1.5,0])
+        rTitle=VGroup(titleRect,R).shift([0,1.5,0])
+        yG1=VGroup(yGRect.copy(),yGt,eight).shift([-2,-1.5,0])
+        yG2=VGroup(yGRect,yGr,seven).shift([-2,-1.5,0])
         
-        #Begin scene
+        #BEGIN SCENE
         self.add(NP)
         self.activate_zooming(animate=False)
 
-        self.play(ShowCreation(v),run_time=5,rate_func=linear)
+        self.play(ShowCreation(v),run_time=2)
         EX=ExclusionZone(t.tileDict[0][0],**cExclusion)
         self.play(ShowCreation(EX),run_time=3)
+        self.wait(2)
 
         ExHex=[]
         for x,y in HexTiles:
@@ -250,6 +263,31 @@ class S0_TriangleGrid(ZoomedScene):
         
         self.play(FadeOut(ExHex),FadeOut(EX),run_time=1.5)
         self.wait(5)
+        self.play(Write(tTitle),run_time=2)
+        self.play(Write(yG1,run_time=2))
+        self.wait(1)
+
+        c0=t.tileDict[3][-1].copy().set_stroke(opacity=0).scale(0.85)
+        c1=t.tileDict[2][0].copy().set_stroke(opacity=0).scale(0.85)
+        c2=t.tileDict[1][-1].copy().set_stroke(opacity=0).scale(0.85)
+        c3=t.tileDict[3][0].copy().set_stroke(opacity=0).scale(0.85)
+        c4=t.tileDict[0][-1].copy().set_stroke(opacity=0).scale(0.85)
+        c5=t.tileDict[1][0].copy().set_stroke(opacity=0).scale(0.85)
+        c6=t.tileDict[0][0].copy().set_stroke(opacity=0).scale(0.85)
+        c7=t.tileDict[2][-1].copy().set_stroke(opacity=0).scale(0.85)
+
+        self.play(Transform(c0,CC8[0]))
+        self.play(Transform(c1,CC8[1]))
+        self.play(Transform(c2,CC8[2]))
+        self.play(Transform(c3,CC8[3]))
+        self.play(Transform(c4,CC8[4]))
+        self.play(Transform(c5,CC8[5]))
+        self.play(Transform(c6,CC8[6]))
+        self.play(Transform(c7,CC8[7]))
+        self.wait(4)
+        self.play(FadeOut(tTitle),FadeOut(yG1),FadeOut(VGroup(c0,c1,c2,c3,c4,c5,c6,c7)))
+        self.wait(4)
+        
         self.play(FadeIn(ExHex),FadeIn(EX),run_time=1.5)
         
         self.play(Transform(v,vR),
@@ -259,6 +297,8 @@ class S0_TriangleGrid(ZoomedScene):
         self.wait(5)
         self.play(FadeOut(ExHex),FadeOut(EX),run_time=1.5)
         self.wait(5)
+
+        
         self.play(FadeIn(ExHex),FadeIn(EX),run_time=1.5)
         
         self.wait(2)
@@ -280,7 +320,29 @@ class S0_TriangleGrid(ZoomedScene):
         self.wait(5)
         self.play(FadeOut(ExHex2),FadeOut(EX))
         self.wait(2)
-        #Uncreate(stuff)
+        
+        self.play(Write(rTitle),run_time=2)
+        self.play(Write(yG2,run_time=2))
+        self.wait(1)
+
+        c0=t.tileDict[2][0].copy().set_stroke(opacity=0).scale(0.85)##
+        c1=t.tileDict[1][-1].copy().set_stroke(opacity=0).scale(0.85)##
+        c2=t.tileDict[3][0].copy().set_stroke(opacity=0).scale(0.85)##
+        c3=t.tileDict[0][-1].copy().set_stroke(opacity=0).scale(0.85)##
+        c4=t.tileDict[1][0].copy().set_stroke(opacity=0).scale(0.85)##
+        c5=t.tileDict[0][0].copy().set_stroke(opacity=0).scale(0.85)##
+        c6=t.tileDict[2][-1].copy().set_stroke(opacity=0).scale(0.85)##
+
+        self.play(Transform(c0,CC7[0]))
+        self.play(Transform(c1,CC7[1]))
+        self.play(Transform(c2,CC7[2]))
+        self.play(Transform(c3,CC7[3]))
+        self.play(Transform(c4,CC7[4]))
+        self.play(Transform(c5,CC7[5]))
+        self.play(Transform(c6,CC7[6]))
+        self.wait(4)
+        self.play(FadeOut(rTitle),FadeOut(yG2),FadeOut(VGroup(c0,c1,c2,c3,c4,c5,c6)))
+        self.wait(4)
         
 class S0_SquareGrid(ZoomedScene):
     CONFIG = {
