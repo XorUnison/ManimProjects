@@ -26,7 +26,9 @@ class NewSVGMO(SVGMobject):
 # Computes angle for use with ArcBetweenPoints
 def computeABPAngle(a,b,radius=1):
     halfdist = np.linalg.norm(a - b) / 2
-    arcHeight = radius - math.sqrt(radius ** 2 - halfdist ** 2)
+    arcHeight = radius - cmath.sqrt(radius ** 2 - halfdist ** 2)
+    #print(arcHeight.imaginary)
+    arcHeight=arcHeight.real
     return math.acos((radius - arcHeight) / radius)
 
 
@@ -219,7 +221,15 @@ class ExclusionZone(VMobject):
         arcPolygon = arcPolygon.copy()
         #We force CW orientation so the following code can be simpler, without checking for orientation.
         arcPolygon.force_orientation("CW")
-        arcs=arcPolygon.get_arcs()
+        
+        arcs=[]#We put arcs into a new array like this so the next remove step works
+        for arc in arcPolygon.get_arcs():
+            arcs.append(arc)
+        print(len(arcs))
+        for arc in arcs:#Here we drop arcs that have no actual length to avoid glitches
+            if np.linalg.norm(arc.get_start()-arc.get_end())==0:
+                arcs.remove(arc)
+                print("arc dropped")
 
         #From this point forward we'll be computing the outside of the exclusion zone
         arcParams=[]
@@ -238,7 +248,7 @@ class ExclusionZone(VMobject):
             bAngle=Line(a,b).get_angle()+arcAngle/2-math.pi/2
             a=a+[math.cos(aAngle),math.sin(aAngle),0]
             b=b+[math.cos(bAngle),math.sin(bAngle),0]
-
+    
             arcParams.append([a,b,arcAngle])
 
         #Once the points and angles we need are calculated we append the first one again,
@@ -288,8 +298,8 @@ class ExclusionZone(VMobject):
         self.preDual = ArcPolygon(*arcedBoundary)
         self.exZone = ArcPolygon(*EXarcsOuter)
         self.inZone = ArcPolygon(*EXarcsInner)
-        if False:
-            self.add(self.exZone,self.inZone)
+        #if False:
+        #    self.add(self.exZone,self.inZone)
         self.append_points(self.exZone.get_points())
         self.append_points(self.inZone.get_points())
 
@@ -361,19 +371,7 @@ class Tiling(VMobject):
         return self.tileDict
     def get_VGroup(self):
         return self.VGroup
-
-class ColorCirclez(VMobject):
-    def __init__(self, colors, **kwargs):
-        VMobject.__init__(self, **kwargs)
-        colCount=len(colors)
-        circs=[]
-        i=0
-        for col in colors:
-            circ=Circle(color=col).scale(0.2).shift([0,1,0]).rotate((2*np.pi/colCount)*i,about_point=[0,0,0])
-            circs.append(circ)
-            i+=1
-        self.VGroup=VGroup(*circs)
-
+    
 #===Color Circle===
 #Returns a VGroup circle of colored circles, used for visualizing the chromatic number and used colors in graph theory
 def ColorCircle(colors):
@@ -381,7 +379,8 @@ def ColorCircle(colors):
     circs=[]
     i=0
     for col in colors:
-        circ=Circle(color=col,fill_opacity=1,stroke_opacity=0).scale(0.3).shift([0,1,0]).rotate((2*np.pi/colCount)*-i,about_point=[0,0,0])
+        circ=Circle(color=col,fill_opacity=1,stroke_opacity=0).scale(0.3).shift([0,1,0]).rotate((2*np.pi/colCount)*-i,
+                                                                                                about_point=[0,0,0]).rotate((2*np.pi/colCount)*i)
         circs.append(circ)
         i+=1
     return VGroup(*circs)
