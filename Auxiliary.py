@@ -225,11 +225,9 @@ class ExclusionZone(VMobject):
         arcs=[]#We put arcs into a new array like this so the next remove step works
         for arc in arcPolygon.get_arcs():
             arcs.append(arc)
-        print(len(arcs))
         for arc in arcs:#Here we drop arcs that have no actual length to avoid glitches
             if np.linalg.norm(arc.get_start()-arc.get_end())==0:
                 arcs.remove(arc)
-                print("arc dropped")
 
         #From this point forward we'll be computing the outside of the exclusion zone
         arcParams=[]

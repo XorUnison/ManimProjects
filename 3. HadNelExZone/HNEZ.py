@@ -11,7 +11,7 @@ NPac=NumberPlane().add_coordinates()
 NLan=NumberLine().add_numbers()
 
 cPrototype = {"stroke_width":2,"stroke_color":BLACK,"fill_opacity":1,"color": PURPLE}
-cArc = {"stroke_width":0,"stroke_color":RED,"fill_opacity":0,"color": PURPLE}
+cArc = {"stroke_width":0,"stroke_color":"#00ff00","fill_opacity":0,"color": PURPLE}
 cArc2 = {"stroke_width":3,"stroke_color":YELLOW,"fill_opacity":0,"color": PURPLE}
 cArc3 = {"stroke_width":5,"stroke_color":"#ff0000","fill_opacity":0,"color": PURPLE}
 cExclusion = {"stroke_width":2,"stroke_color":WHITE,"fill_opacity":0.5,"color": RED}
@@ -19,7 +19,20 @@ cExclusion = {"stroke_width":2,"stroke_color":WHITE,"fill_opacity":0.5,"color": 
 arc0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),angle=0,**cArc)
 arc1=ArcBetweenPoints(np.array([1,0,0]),np.array([0.5,r3/2,0]),angle=0,**cArc)
 arc2=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0,0,0]),angle=0,**cArc)
-pTriangle=ArcPolygon(arc0,arc1,arc2,**cPrototype).shift([-0.5,-r3/6,0])
+pTriangle=ArcPolygon(arc0.copy(),arc1.copy(),arc2.copy(),**cPrototype).shift([-0.5,-r3/6,0])
+
+arc0h=ArcBetweenPoints(np.array([1,0,0]),np.array([1,0,0]),angle=0,**cArc)
+arc1h=ArcBetweenPoints(np.array([0.5,r3/2,0]),np.array([0.5,r3/2,0]),angle=0,**cArc)
+arc2h=ArcBetweenPoints(np.array([0,0,0]),np.array([0,0,0]),angle=0,**cArc)
+pTTriangle=ArcPolygon(arc0,arc1,arc1h,arc2,**cPrototype).shift([-0.5,-r3/6,0])
+
+arc0h=ArcBetweenPoints(np.array([0.5,0,0]),np.array([0.5,0,0]),angle=0,**cArc)
+arc0=ArcBetweenPoints(np.array([0.5,0,0]),np.array([1,r3/2,0]),angle=0,**cArc)
+arc1h=ArcBetweenPoints(np.array([1,r3/2,0]),np.array([1,r3/2,0]),angle=0,**cArc)
+arc1=ArcBetweenPoints(np.array([1,r3/2,0]),np.array([0,r3/2,0]),angle=0,**cArc)
+arc2h=ArcBetweenPoints(np.array([0,r3/2,0]),np.array([0,r3/2,0]),angle=0,**cArc)
+arc2=ArcBetweenPoints(np.array([0,r3/2,0]),np.array([0.5,0,0]),angle=0,**cArc)
+pTT2riangle=ArcPolygon(arc0h,arc0,arc1,arc2,**cPrototype).shift([-0.5,-r3/6,0])
 
 ang=computeABPAngle(np.array([0,0,0]),np.array([1,0,0]))*2
 arc0=ArcBetweenPoints(np.array([0,0,0]),np.array([1,0,0]),angle=ang,**cArc)
@@ -37,8 +50,9 @@ arc1=ArcBetweenPoints(np.array([1/r2,0,0]),np.array([1/r2,1/r2,0]),angle=0,**cAr
 arc2=ArcBetweenPoints(np.array([1/r2,1/r2,0]),np.array([0,1/r2,0]),angle=0,**cArc)
 arc2h=ArcBetweenPoints(np.array([0,1/r2,0]),np.array([0,1/r2,0]),angle=0,**cArc)
 arc3=ArcBetweenPoints(np.array([0,1/r2,0]),np.array([0,0,0]),angle=0,**cArc)
-pSquare=ArcPolygon(arc0,arc0h,arc1,arc2,arc2h,arc3,**cPrototype).move_to([0,0,0])
-#This square definition has two 0-length arcs inserted so it can be transformed into an hexagon with intact exclusion zone
+pSquare=ArcPolygon(arc0.copy(),arc1.copy(),arc2.copy(),arc3.copy(),**cPrototype).move_to([0,0,0])
+pTSquare=ArcPolygon(arc0,arc0h,arc1,arc2,arc2h,arc3,**cPrototype).move_to([0,0,0])
+#This square has two 0-length arcs inserted for transforming into an hexagon with intact exclusion zone
 
 arc0=ArcBetweenPoints(np.array([-0.5,0,0]),np.array([-0.25,-r3/4,0]),angle=0,**cArc)
 arc1=ArcBetweenPoints(np.array([-0.25,-r3/4,0]),np.array([0.25,-r3/4,0]),angle=0,**cArc)
@@ -92,6 +106,18 @@ def partialColor(t,arr):
     for x,y in arr:
         t.tileDict[x][y].set_fill("#0000ff")
         t.tileDict[0][0].set_fill("#0000ff")
+
+def standardColor(t):
+    for x in t.xRange:
+        for y in t.yRange:
+            if ((x+y)%4==0) and (y%2==0):   t.tileDict[x][y].set_fill("#0000ff")
+            if ((x+y)%4==1) and (y%2==0):   t.tileDict[x][y].set_fill("#ff0000")
+            if ((x+y)%4==2) and (y%2==0):   t.tileDict[x][y].set_fill("#ffff00")
+            if ((x+y)%4==3) and (y%2==0):   t.tileDict[x][y].set_fill("#aaaaaa")
+            if ((x+y)%4==0) and (y%2==1):   t.tileDict[x][y].set_fill("#dd00ff")
+            if ((x+y)%4==1) and (y%2==1):   t.tileDict[x][y].set_fill("#ff7b00")
+            if ((x+y)%4==2) and (y%2==1):   t.tileDict[x][y].set_fill("#00ff00")
+            if ((x+y)%4==3) and (y%2==1):   t.tileDict[x][y].set_fill("#00ffff")
         
 def hexColor(t):
     for x in t.xRange:
@@ -161,25 +187,12 @@ class S0_TriangleGrid(ZoomedScene):
                 return pRMTriangle
             else:
                 return pRTriangleShifted
-        def standardColor(t):
-            for x in t.xRange:
-                for y in t.yRange:
-                    if ((x+y)%4==0) and (y%2==0):   t.tileDict[x][y].set_fill("#0000ff")
-                    if ((x+y)%4==1) and (y%2==0):   t.tileDict[x][y].set_fill("#dd00ff")##
-                    if ((x+y)%4==2) and (y%2==0):   t.tileDict[x][y].set_fill("#00ff00")
-                    if ((x+y)%4==3) and (y%2==0):   t.tileDict[x][y].set_fill("#ff7b00")##
-                    if ((x+y)%4==0) and (y%2==1):   t.tileDict[x][y].set_fill("#ffff00")
-                    if ((x+y)%4==1) and (y%2==1):   t.tileDict[x][y].set_fill("#00ffff")##
-                    if ((x+y)%4==2) and (y%2==1):   t.tileDict[x][y].set_fill("#aaaaaa")
-                    if ((x+y)%4==3) and (y%2==1):   t.tileDict[x][y].set_fill("#ff0000")##
         def sevenColor(t):
             for x in t.xRange:
                 for y in t.yRange:
                     if ((x+3*y)%6==0):              t.tileDict[x][y].set_fill("#0000ff")
                     if ((x+3*y)%6==2):              t.tileDict[x][y].set_fill("#00ff00")
                     if ((x+3*y)%6==4):              t.tileDict[x][y].set_fill("#ffff00")
-
-                    
                     if ((x+y)%4==1) and (y%2==0):   t.tileDict[x][y].set_fill("#dd00ff")##
                     if ((x+y)%4==3) and (y%2==0):   t.tileDict[x][y].set_fill("#ff7b00")##
                     if ((x+y)%4==1) and (y%2==1):   t.tileDict[x][y].set_fill("#00ffff")##
@@ -187,7 +200,7 @@ class S0_TriangleGrid(ZoomedScene):
             
             
         xRange=range(-9,9)
-        yRange=range(-4,4)#9,4
+        yRange=range(-3,3)#9,4
 
         t=Tiling(pTriangle,
                  [[Mobject.shift,np.array([0.5,0,0]),Mobject.rotate,math.pi]],
@@ -280,14 +293,14 @@ class S0_TriangleGrid(ZoomedScene):
         self.play(Write(yG1,run_time=2))
         self.wait(1)
 
-        c0=t.tileDict[3][-1].copy().set_stroke(opacity=0).scale(0.85)
-        c1=t.tileDict[2][0].copy().set_stroke(opacity=0).scale(0.85)
-        c2=t.tileDict[1][-1].copy().set_stroke(opacity=0).scale(0.85)
-        c3=t.tileDict[3][0].copy().set_stroke(opacity=0).scale(0.85)
-        c4=t.tileDict[0][-1].copy().set_stroke(opacity=0).scale(0.85)
-        c5=t.tileDict[1][0].copy().set_stroke(opacity=0).scale(0.85)
+        c0=t.tileDict[3][0].copy().set_stroke(opacity=0).scale(0.85)
+        c1=t.tileDict[3][-1].copy().set_stroke(opacity=0).scale(0.85)
+        c2=t.tileDict[2][0].copy().set_stroke(opacity=0).scale(0.85)
+        c3=t.tileDict[2][-1].copy().set_stroke(opacity=0).scale(0.85)
+        c4=t.tileDict[1][0].copy().set_stroke(opacity=0).scale(0.85)
+        c5=t.tileDict[1][-1].copy().set_stroke(opacity=0).scale(0.85)
         c6=t.tileDict[0][0].copy().set_stroke(opacity=0).scale(0.85)
-        c7=t.tileDict[2][-1].copy().set_stroke(opacity=0).scale(0.85)
+        c7=t.tileDict[0][-1].copy().set_stroke(opacity=0).scale(0.85)
 
         self.play(Transform(c0,CC8[0]))
         self.play(Transform(c1,CC8[1]))
@@ -356,7 +369,11 @@ class S0_TriangleGrid(ZoomedScene):
         self.wait(4)
         self.play(FadeOut(rTitle),FadeOut(yG2),FadeOut(VGroup(c0,c1,c2,c3,c4,c5,c6)))
         self.wait(4)
-        self.play(Uncreate(v))
+        self.play(Transform(v,vO),run_time=2)
+        self.play(Transform(v,vFC),run_time=2)
+        EX=ExclusionZone(t.tileDict[0][0],**cExclusion)
+        self.play(FadeIn(EX))
+        self.wait(2)
         
 class S0_SquareGrid(ZoomedScene):
     CONFIG = {
@@ -365,22 +382,30 @@ class S0_SquareGrid(ZoomedScene):
         "zoomed_display_width": FRAME_WIDTH,
         "zoom_factor": 0.58,
     }
-    def construct(self):
-        def standardColor(t):
-            for x in t.xRange:
-                for y in t.yRange:
-                    if ((x+y)%4==0) and (y%2==0):   t.tileDict[x][y].set_fill("#0000ff")
-                    if ((x+y)%4==1) and (y%2==0):   t.tileDict[x][y].set_fill("#dd00ff")
-                    if ((x+y)%4==2) and (y%2==0):   t.tileDict[x][y].set_fill("#00ff00")
-                    if ((x+y)%4==3) and (y%2==0):   t.tileDict[x][y].set_fill("#ff7b00")
-                    if ((x+y)%4==0) and (y%2==1):   t.tileDict[x][y].set_fill("#ffff00")
-                    if ((x+y)%4==1) and (y%2==1):   t.tileDict[x][y].set_fill("#00ffff")
-                    if ((x+y)%4==2) and (y%2==1):   t.tileDict[x][y].set_fill("#aaaaaa")
-                    if ((x+y)%4==3) and (y%2==1):   t.tileDict[x][y].set_fill("#ff0000")
-
-                    
+    def construct(self):    
+        def pRTFC(x,y):
+            if ((x+y)%2==0 and (y%2==0)) or ((x+y)%2==0 and (y%2==1)):
+                return pTTriangle
+            else:
+                return pTT2riangle
+        xRangePre=range(-9,9)
+        yRangePre=range(-3,3)
         xRange=range(-6,6)
         yRange=range(-3,3)
+
+        
+        tTriFC=Tiling(pRTFC,
+                 [[Mobject.shift,np.array([0.5,0,0])]],
+                 [[Mobject.shift,np.array([0,r3/2,0])]],
+                 xRangePre,yRangePre)
+        vTriFC=tTriFC.get_VGroup()
+        standardColor(tTriFC)
+        tPreFC=Tiling(pSquare,
+                 [[Mobject.shift,np.array([1/r2,0,0])]],
+                 [[Mobject.shift,np.array([0,1/r2,0])]],
+                 xRangePre,yRangePre)
+        vPreFC=tPreFC.get_VGroup()
+        standardColor(tPreFC)
         
         t=Tiling(pSquare,
                  [[Mobject.shift,np.array([1/r2,0,0])]],
@@ -388,15 +413,22 @@ class S0_SquareGrid(ZoomedScene):
                  xRange,yRange)
         v=t.get_VGroup()
         t.tileDict[0][0].set_fill("#0000ff")
+        tO=t.deepcopy()
+        vO=tO.get_VGroup()
         
         tSPC=t.deepcopy()
         vSPC=tSPC.get_VGroup()
         SquareTiles=[[2,2],[2,-2],[-2,-2],[-2,2]]
         partialColor(tSPC,SquareTiles)
+        ExSquareRef=[]
+        for x,y in SquareTiles:
+            ExSquareRef.append(tTriFC.tileDict[x][y])
         
         tFC=t.deepcopy()
         vFC=tFC.get_VGroup()
         standardColor(tFC)
+        tFCO=tFC.deepcopy()
+        vFCO=tFCO.get_VGroup()
 
 
         t2=Tiling(pSquare,#This is the shifted, hexagonal square tiling
@@ -425,21 +457,25 @@ class S0_SquareGrid(ZoomedScene):
         #BEGIN SCENE
         self.add(NP)
         self.activate_zooming(animate=False)
-
-        self.play(Write(v),run_time=2)
-        EX=ExclusionZone(t.tileDict[0][0],**cExclusion)
-        self.play(ShowCreation(EX),run_time=3)
-        self.wait(2)
-
+        self.add(vTriFC)
+        EX=ExclusionZone(tTriFC.tileDict[0][0],**cExclusion)
         ExSquare=[]
         for x,y in SquareTiles:
-            ExSquare.append(ExclusionZone(t.tileDict[x][y],**cExclusion))
+            ExSquare.append(ExclusionZone(tTriFC.tileDict[x][y],**cExclusion))
         ExSquare=VGroup(*ExSquare)
-        
-        self.play(Transform(v,vSPC),
-                  FadeIn(ExSquare),run_time=4,rate_func=linear)
+        self.add(EX)
+        self.play(FadeIn(ExSquare))
+
+        self.play(Transform(vTriFC,vPreFC),
+                  UpdateFromAlphaFuncArg(EX,update_EX,tTriFC.tileDict[0][0]),
+                  UpdateFromAlphaFuncArg(ExSquare,update_EX_multi,ExSquareRef),run_time=8)
         self.wait(2)
-        self.play(Transform(v,vFC),run_time=4)
+
+        self.remove(vTriFC)
+        self.add(v)
+        self.bring_to_front(EX,ExSquare)
+        
+        self.play(Transform(v,vFC),run_time=0)
 
         
         self.play(FadeOut(ExSquare),FadeOut(EX),run_time=1.5)
@@ -448,14 +484,14 @@ class S0_SquareGrid(ZoomedScene):
         self.play(Write(yG1,run_time=2))
         self.wait(1)
 
-        c0=t.tileDict[3][-1].copy().set_stroke(opacity=0).scale(0.85)
-        c1=t.tileDict[2][0].copy().set_stroke(opacity=0).scale(0.85)
-        c2=t.tileDict[1][-1].copy().set_stroke(opacity=0).scale(0.85)
-        c3=t.tileDict[3][0].copy().set_stroke(opacity=0).scale(0.85)
-        c4=t.tileDict[0][-1].copy().set_stroke(opacity=0).scale(0.85)
-        c5=t.tileDict[1][0].copy().set_stroke(opacity=0).scale(0.85)
+        c0=t.tileDict[3][0].copy().set_stroke(opacity=0).scale(0.85)
+        c1=t.tileDict[3][-1].copy().set_stroke(opacity=0).scale(0.85)
+        c2=t.tileDict[2][0].copy().set_stroke(opacity=0).scale(0.85)
+        c3=t.tileDict[2][-1].copy().set_stroke(opacity=0).scale(0.85)
+        c4=t.tileDict[1][0].copy().set_stroke(opacity=0).scale(0.85)
+        c5=t.tileDict[1][-1].copy().set_stroke(opacity=0).scale(0.85)
         c6=t.tileDict[0][0].copy().set_stroke(opacity=0).scale(0.85)
-        c7=t.tileDict[2][-1].copy().set_stroke(opacity=0).scale(0.85)
+        c7=t.tileDict[0][-1].copy().set_stroke(opacity=0).scale(0.85)
 
         self.play(Transform(c0,CC8[0]))
         self.play(Transform(c1,CC8[1]))
@@ -512,11 +548,10 @@ class S0_HexagonGrid(ZoomedScene):
         "zoom_factor": 0.58,
     }
     def construct(self):
+        xRange=range(-7,6)
+        yRange=range(-4,4)
 
-        xRange=range(-6,6)
-        yRange=range(-3,3)
-
-        t=Tiling(pSquare,#This is the shifted tiling again
+        t=Tiling(pTSquare,#This is the shifted tiling again
                  [[Mobject.shift,np.array([1/r2,0,0])]],
                  [[Mobject.shift,np.array([1/(2*r2),1/r2,0])],[Mobject.shift,np.array([-1/(2*r2),1/r2,0])]],
                  xRange,yRange)
@@ -530,7 +565,13 @@ class S0_HexagonGrid(ZoomedScene):
         vFC=tFC.get_VGroup()
         hexColor(tFC)
 
-        
+        dl=Text("Hexagonal Grid (d=1)",font=titleFont).scale(0.7)
+        ds=Text("Hexagonal Grid (d=0.75)",font=titleFont).scale(0.5)
+        dlTitle=VGroup(titleRect.copy(),dl).shift([0,1.5,0])
+        dsTitle=VGroup(titleRect,ds).shift([0,1.5,0])
+        yG1=VGroup(yGRect,yGh,seven).shift([-2,-1.5,0])
+
+        #BEGIN SCENE
         self.add(NP,v)
         self.activate_zooming(animate=False)
         EX=ExclusionZone(t.tileDict[0][0],**cExclusion)
@@ -542,29 +583,22 @@ class S0_HexagonGrid(ZoomedScene):
         for x,y in HexTiles:
             ExHex.append(ExclusionZone(t.tileDict[x][y],**cExclusion))
         ExHex=VGroup(*ExHex)
-        self.play(FadeIn(EX),FadeIn(ExHex),run_time=1)#3
+        self.play(FadeIn(EX),run_time=1)
+        #self.play(FadeIn(EX),FadeIn(ExHex),run_time=1)
         self.wait(2)
 
         
         
         self.play(Transform(v,vFC),
-                  UpdateFromAlphaFuncArg(EX,update_EX,t.tileDict[0][0]),
-                  UpdateFromAlphaFuncArg(ExHex,update_EX_multi,ExHexRef),run_time=3)
-        #EX=ExclusionZone(t.get_dict()[0][0],**cExclusion)
-        #self.play(ShowCreation(EX),run_time=5)
-
-
+                  UpdateFromAlphaFuncArg(EX,update_EX,t.tileDict[0][0]))
+        #self.play(Transform(v,vFC),
+        #          UpdateFromAlphaFuncArg(EX,update_EX,t.tileDict[0][0]),
+        #          UpdateFromAlphaFuncArg(ExHex,update_EX_multi,ExHexRef),run_time=3)
         
-        #self.play(ApplyMethod(v.scale,0.8),
-        #          UpdateFromAlphaFuncArg(EX,update_EX,t.get_dict()[0][0]),run_time=5)
-
-        
-        #self.play(ApplyMethod(v.scale,0.8),run_time=4)
-        #self.play(ShowCreation(pGreyPent),run_time=3)
-        #EX=ExclusionZone(pGreyPent,**cExclusion)
-        #self.play(ShowCreation(EX),run_time=4,rate_func=linear)
-        #self.play(ApplyMethod(pGreyPent.scale,0.02),UpdateFromAlphaFunc(EX,update_EX),run_time=4)
-        self.wait()
+        #self.play(ApplyMethod(v.scale,0.76),
+        #          UpdateFromAlphaFuncArg(EX,update_EX,t.tileDict[0][0]),
+        #          UpdateFromAlphaFuncArg(ExHex,update_EX_multi,ExHexRef),run_time=8)
+        #self.wait()
         
 class S0_DeGreyGrid(ZoomedScene):
     CONFIG = {
