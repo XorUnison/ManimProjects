@@ -167,7 +167,7 @@ class S03_Measures(ZoomedScene):#Rename to encapsulate the current contents
         self.play(FadeIn(NP),FadeIn(K2aB.shift([2,2,0])),
                   ApplyMethod(self.foreground_mobjects[1].scale_about_point,1/1.05,[0,0,0]))
         self.wait(1)
-        dbrace = Brace(K2aB,[1,0,0]).shift([-0.2,0,0])#we need to initially these braces here
+        dbrace = Brace(K2aB,[1,0,0]).shift([-0.2,0,0])#we need to initialize these braces here
         rbrace = Brace(K2aB,[-1,0,0]).scale(0.5).shift([0.25,-0.25,0])
         mbrace = Brace(K3MB[1],[0,-1,0]).shift([0,0.20,0])
         rTex=TextMobject("r").next_to(rbrace,LEFT).shift([0.24,0,0])

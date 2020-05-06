@@ -109,13 +109,28 @@ class Graph():
                 c.shift(attributes[0])  # Applies all the necessary attributes to the circle
                 self.circleArr.append(c)
             for connectedVertex in attributes[1]:
-                if connectedVertex > vertex:  # Makes sure no lines are drawn double
-                    l = Line(attributes[0], self.graph[connectedVertex][0], **self.line_config)
-                    self.lineArr.append(l)
+                if isinstance(connectedVertex, int):
+                    if connectedVertex > vertex:  # Makes sure no lines are drawn double
+                        l = Line(attributes[0], self.graph[connectedVertex][0], **self.line_config)
+                        self.lineArr.append(l)
+                elif isinstance(connectedVertex, list):
+                    print(attributes[0])
+                    if connectedVertex[0] > vertex:  # Makes sure no lines are drawn double
+                        l = ArcBetweenPoints(np.array(attributes[0]),
+                                             np.array(self.graph[connectedVertex[0]][0]),
+                                             angle=connectedVertex[1], **self.line_config)
+                        self.lineArr.append(l)
+                else:
+                    raise Exception("""Invalid Edge definition.
+                                    Use int for lines or [int,angle] for ArcBetweenPoints""")
 
     def returnVGroup(self):
         self.makeGraph()
         return VGroup(*self.lineArr, *self.circleArr)
+
+    def returnEdges(self):
+        self.makeGraph()
+        return VGroup(*self.lineArr)
 
     def returnVertices(self):
         self.makeGraph()
@@ -427,6 +442,7 @@ class MeasureBar():
 r2 = math.sqrt(2)
 r3 = math.sqrt(3)
 r5 = math.sqrt(5)
+r7 = math.sqrt(7)
 r11 = math.sqrt(11)
 r15 = math.sqrt(15)
 r33 = math.sqrt(33)
