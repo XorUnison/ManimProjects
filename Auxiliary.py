@@ -24,13 +24,19 @@ class NewSVGMO(SVGMobject):
 
 # ===Compute ABP Angle===
 # Computes angle for use with ArcBetweenPoints
-def computeABPAngle(a,b,radius=1):
-    halfdist = np.linalg.norm(a - b) / 2
+def computeABPAngle(A,B,radius=1):
+    halfdist = np.linalg.norm(A - B) / 2
     arcHeight = radius - cmath.sqrt(radius ** 2 - halfdist ** 2)
-    #print(arcHeight.imaginary)
     arcHeight=arcHeight.real
     return math.acos((radius - arcHeight) / radius)
 
+# ===Compute Circumradius===
+def circumradius(A,B,C):
+    a = np.linalg.norm(C - B)
+    b = np.linalg.norm(C - A)
+    c = np.linalg.norm(B - A)
+    s = (a + b + c) / 2
+    return a*b*c / 4 / np.sqrt(s * (s - a) * (s - b) * (s - c))
 
 # ===Intersections===
 # This method gets the intersections between two circles
@@ -281,11 +287,20 @@ class ExclusionZone(VMobject):
         #Now for the inner boundary
         arcPoints=[]
         for i in range(len(arcs)):
-            i = -(i + 1)
+            i = -(i + 1)#This makes the inner boundary run in reverse to the outer one
             arcPoints.append(arcs[i].get_end())
         arcPoints.append(arcs[-1].get_end())
         arcedBoundary=[]
-        # Connect these points with radius 1 arcs
+        # We might have to drop some points.
+        # This is the case when with the first and third points as base the second point (apex)
+        # doesn't fall outside of the radius 1 arc, in which case we drop that second point.
+        # That point has no bearing on the inner boundary and would just confuse the following code
+
+        for i in range(len(arcPoints)-1):
+            if circumradius(arcPoints[i-2],arcPoints[i-1],arcPoints[i]) > 1:
+                del arcPoints[i-1]
+        
+        # Connect the leftover points with radius 1 arcs
         for i in range(len(arcPoints)-1):
             a = arcPoints[i]
             b = arcPoints[i+1]
@@ -311,8 +326,7 @@ class ExclusionZone(VMobject):
         self.preDual = ArcPolygon(*arcedBoundary)
         self.exZone = ArcPolygon(*EXarcsOuter)
         self.inZone = ArcPolygon(*EXarcsInner)
-        #if False:
-        #    self.add(self.exZone,self.inZone)
+        
         self.append_points(self.exZone.get_points())
         self.append_points(self.inZone.get_points())
 
